@@ -1,0 +1,72 @@
+from snakemake.utils import min_version
+
+
+# Configuration
+configfile: "config/config.yaml"
+
+
+# Settings
+min_version("7.32.4")
+
+
+# Define modules
+module gencode:
+    snakefile:
+        "https://raw.githubusercontent.com/ctubbs750/gencode/main/workflow/Snakefile"
+    config:
+        config
+
+
+module genome:
+    snakefile:
+        "https://raw.githubusercontent.com/ctubbs750/genome/main/workflow/Snakefile"
+    config:
+        config
+
+
+module pssm:
+    snakefile:
+        "rules/pssm.smk"
+    config:
+        config["PSSM"]
+
+
+module activity:
+    snakefile:
+        "rules/activity.smk"
+    config:
+        config["ACTIVITY"]
+
+
+module report:
+    snakefile:
+        "rules/report.smk"
+    config:
+        config["PSSM"]
+
+
+# Import modules
+use rule * from pssm as pssm_*
+
+
+use rule * from activity as activity_*
+
+
+use rule * from report as report_*
+
+
+###
+# Rules
+###
+
+
+rule all:
+    message:
+        """
+        DEPLOYING UNIBIND-SCAN...
+        """
+    input:
+        # rules.pssm_all.input,
+        rules.activity_all.input,
+        # rules.report_all.input,
+    default_target: True

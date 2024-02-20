@@ -1,0 +1,1 @@
+snakemake -s workflow/Snakefile --use-conda --conda-prefix ~/snakemake_condas/ -c8 --rerun-incomplete -np

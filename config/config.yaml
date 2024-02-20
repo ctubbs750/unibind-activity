@@ -1,0 +1,56 @@
+PSSM:
+  # Processing and install dirs
+  install_dir: resources/data/unibind
+  process_dir: results/unibind
+  # URLs for downloading the data
+  urls:
+    pwms: https://unibind.uio.no/static/data/20220914/bulk_Robust/Homo_sapiens/damo_hg38_PWMs.tar.gz
+    tfbs: https://unibind.uio.no/static/data/20220914/bulk_Robust/Homo_sapiens/damo_hg38_TFBS_per_TF.tar.gz
+    fasta: https://unibind.uio.no/static/data/20220914/bulk_Robust/Homo_sapiens/damo_hg38_all_TFBS_fasta.tar.gz
+    jaspar_pfms: https://jaspar.elixir.no/download/data/2024/CORE/JASPAR2024_CORE_redundant_pfms_jaspar.txt
+
+ACTIVITY:
+  # Target genome build to scan against
+  assembly: hg38
+  # Directies under `resources/data` containing input profiles to scan with
+  profiles_dir: resources/data/unibind/damo_hg38_PWMS
+  # Input genome dir
+  genome_dir: resources/data/genome
+  # Directory for processed gencode
+  gencode_dir: results/gencode
+  # Format for profiles
+  format: "pwm"
+  # PWMScan software
+  matrix_prob: workflow/scripts/scan/matrix_prob.c
+  matrix_scan: workflow/scripts/scan/matrix_scan.c
+  # Base output dir
+  output_dir: results/unibind/scan
+  #
+  process_dir: results/unibind/activity
+  
+GENOME:
+  # Genome builds
+  builds:
+    - hg38
+  # Genome source
+  source: UCSC
+  # Regex filtering - filter FASTA to main chromosomes
+  filter: chr[0-9XY]+$
+  # ENCODE Blacklist URLs
+  blacklist_hg19: https://github.com/Boyle-Lab/Blacklist/raw/master/lists/hg19-blacklist.v2.bed.gz
+  blacklist_hg38: https://github.com/Boyle-Lab/Blacklist/raw/master/lists/hg38-blacklist.v2.bed.gz
+
+GENCODE:
+  # Genome build
+  builds:
+    - hg38
+  # Size of window on TSS to define promoters
+  promoter_window: 2000
+  # Chromosome size form UCSC URLS
+  ucsc_urls:
+    hg19: https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes
+    hg38: https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.chrom.sizes
+  # Gencode URLS
+  gencode_urls:
+    hg19: https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_44/GRCh37_mapping/gencode.v44lift37.basic.annotation.gtf.gz
+    hg38: https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_44/gencode.v44.basic.annotation.gtf.gz
