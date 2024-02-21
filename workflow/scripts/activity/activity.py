@@ -41,8 +41,8 @@ def main() -> None:
         .unstack()
         .fillna(0)
         .rename(columns={0: "n_unbound", 1: "n_bound"})
-    )
-
+    ).reset_index()
+    
     # Total motifs
     activity["n_motifs"] = activity["n_bound"] + activity["n_unbound"]
 
@@ -67,6 +67,10 @@ def main() -> None:
     # Find first row where CI width is less than 0.1
     last_index = activity[activity["ci_width_roll"] < THRESH].index[0] - WINDOW
 
+    # handle negatives
+    if last_index < 0:
+        last_index = 0
+    
     # Update to values at the cap index
     columns_to_update = [
         "n_unbound",
@@ -85,8 +89,11 @@ def main() -> None:
     # Flat that you adjusted
     activity["adjusted"] = [1 if x > last_index else 0 for x in activity.index]
 
-    # Merge back to get pvals
-    activity = merge(activity, ix_sites[["score", "perc"]], on="score", how="left")
+    # Dict where score are keys and values are perc
+    score_perc = dict(zip(ix_sites["score"], ix_sites["perc"]))
+
+    # Update with perc
+    activity['perc'] = activity['score'].map(score_perc)
 
     # Bound to 0 and 1
     x = activity["perc"] / 100
