@@ -55,17 +55,23 @@ def main() -> None:
     )
 
     # Rolling average of CI width
-    activity["ci_width_roll"] = (
-        (activity["ci95_rbound"] - activity["ci95_lbound"])
+    # activity["ci_width_roll"] = (
+    #     (activity["ci95_rbound"] - activity["ci95_lbound"])
+    #     .rolling(window=WINDOW)
+    #     .mean()
+    # )
+    
+    activity["nmotif_roll"] = (
+        activity["n_motifs"]
         .rolling(window=WINDOW)
         .mean()
     )
     
-    # Reset index for adjustments
-    activity.reset_index(inplace=True)
 
     # Find first row where CI width is less than 0.1
-    last_index = activity[activity["ci_width_roll"] < THRESH].index[0] - WINDOW
+    #last_index = activity[activity["ci_width_roll"] < THRESH].index[0] - WINDOW
+    last_index = activity[activity["nmotif_roll"] < THRESH].index[0] - WINDOW
+
 
     # handle negatives
     if last_index < 0:

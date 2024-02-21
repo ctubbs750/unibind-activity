@@ -343,8 +343,10 @@ rule map_activity:
     output:
         ACTIVITY_MAP,
     params:
+        # window=10,
+        # threshold=0.10,
         window=10,
-        threshold=0.10,
+        threshold=10,
     conda:
         "../envs/scan.yaml"
     log:
