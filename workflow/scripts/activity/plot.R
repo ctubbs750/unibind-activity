@@ -13,15 +13,13 @@ library(DescTools)
 # Snakemake
 ACTIVITY <- snakemake@input[["activity"]]
 PROFILE <- snakemake@params[["profile"]]
-DATASET <- snakemake@input[["dataset"]]
 PLOT_OUTPUT <- snakemake@output[["plt"]]
-AUC_OUTPUT <- snakemake@output[["auc"]]
 
 # ------------- #
 # Functions     #
 # ------------- #
 
-plot_activity <- function(dataset, xvar, mean_var, lbound_var, rbound_var, plot_xlab, plot_ylab, plot_title, dataset_id) {
+plot_activity <- function(dataset, xvar, mean_var, lbound_var, rbound_var, plot_xlab, plot_ylab, plot_title) {
     tryCatch(
          expr = {
             options(repr.plot.width=24, repr.plot.height=16)
@@ -42,12 +40,6 @@ plot_activity <- function(dataset, xvar, mean_var, lbound_var, rbound_var, plot_
             lbnd_data <- ggplot_build(lbnd)[[1]]
             rbnd_data <- ggplot_build(rbnd)[[1]]
 
-            # Grab auc
-            auc <- AUC(main_data[[1]]$x, main_data[[1]]$y)
-
-            # Save auc
-            write(as.character(auc), AUC_OUTPUT)
-
             # Construct into matrix
             plot_data <-data.frame(x = main_data[[1]]$x,
                         ymin = lbnd_data[[1]]$y,
@@ -67,7 +59,7 @@ plot_activity <- function(dataset, xvar, mean_var, lbound_var, rbound_var, plot_
                 theme_minimal(base_size = 20)
 
             # Pub params
-            plot <- ggpar(plot, palette="npg", title=plot_title, subtitle=dataset_id) + 
+            plot <- ggpar(plot, palette="npg", title=plot_title) + 
                 theme_pubr(base_size=16, base_family="sans")
                 
         },
@@ -96,4 +88,4 @@ activity <- vroom(ACTIVITY, show_col_types = FALSE, col_names=TRUE)
 # Make plots
 plot_activity(dataset = activity, xvar = "perc", mean_var = "activity",
                 lbound_var = "ci95_lbound", rbound_var = "ci95_rbound", plot_xlab = "Percent Max PWM Score", 
-                plot_ylab = "Proportion Unibind Support", plot_title = PROFILE, dataset_id = DATASET)
+                plot_ylab = "Proportion Unibind Support", plot_title = PROFILE)

@@ -60,6 +60,9 @@ def main() -> None:
         .rolling(window=WINDOW)
         .mean()
     )
+    
+    # Reset index for adjustments
+    activity.reset_index(inplace=True)
 
     # Find first row where CI width is less than 0.1
     last_index = activity[activity["ci_width_roll"] < THRESH].index[0] - WINDOW

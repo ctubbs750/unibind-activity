@@ -93,6 +93,16 @@ ACTIVITY_MAP = os.path.join(
     "activity-map.tsv",
 )
 
+# Activity plot
+ACTIVITY_PLT = os.path.join(
+    "results",
+    "unibind",
+    "activity",
+    "{source}",
+    "{profile}",
+    "activity.map.png",
+)
+
 # ------------- #
 # Params        #
 # ------------- #
@@ -114,7 +124,8 @@ rule all:
         # expand(SITES, source="jaspar", profile=JASPAR_PROFILE_NAMES),
         # expand(SITES, source="damo", profile=DAMO_BIOSAMPLE_NAMES),
         # expand(SITES_FOR_AUC_PVALS, source="damo", profile=DAMO_BIOSAMPLE_NAMES),
-        expand(ACTIVITY_MAP, source="damo", profile=DAMO_BIOSAMPLE_NAMES)[:10],
+        #expand(ACTIVITY_MAP, source="damo", profile=DAMO_BIOSAMPLE_NAMES)[:10],
+        expand(ACTIVITY_PLT, source="damo", profile=DAMO_BIOSAMPLE_NAMES)[:10],
 
 
 rule decompress_genome:
@@ -341,3 +352,21 @@ rule map_activity:
         stderr="workflow/logs/map_activity_{source}_{profile}.stderr",
     script:
         "../scripts/activity/activity.py"
+
+rule plot_activity:
+    """
+    Makes indvidual data plot based off activity map
+    """
+    input:
+        activity=rules.map_activity.output,
+    output:
+        plt=ACTIVITY_PLOT,
+    params:
+        profile=lambda wc: wc.profile,
+    conda:
+        "../envs/report.yaml"
+    log:
+        stdout="workflow/logs/plot_activity_{source}_{profile}.stdout",
+        stderr="workflow/logs/plot_activity_{source}_{profile}.stderr",
+    script:
+        "../scripts/activity/plot.R"
