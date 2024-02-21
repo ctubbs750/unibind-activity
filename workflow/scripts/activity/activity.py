@@ -101,7 +101,7 @@ def main() -> None:
         activity['perc'] = activity['score'].map(score_perc)
 
         # Bound to 0 and 1
-        x = activity["perc"] / 100
+        x = activity["perc"] / 10
         y = activity["activity"]
 
         # Get AUC
