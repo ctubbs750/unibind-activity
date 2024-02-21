@@ -84,7 +84,7 @@ def main() -> None:
             "activity",
             "ci95_lbound",
             "ci95_rbound",
-            "ci_width_roll",
+            "nmotif_roll",
         ]
 
         # Truncate
