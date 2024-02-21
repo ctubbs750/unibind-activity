@@ -360,7 +360,7 @@ rule plot_activity:
     input:
         activity=rules.map_activity.output,
     output:
-        plt=ACTIVITY_PLOT,
+        plt=ACTIVITY_PLT,
     params:
         profile=lambda wc: wc.profile,
     conda:
