@@ -42,7 +42,7 @@ def main() -> None:
         .fillna(0)
         .rename(columns={0: "n_unbound", 1: "n_bound"})
     ).reset_index()
-    
+
     # Total motifs
     activity["n_motifs"] = activity["n_bound"] + activity["n_unbound"]
 
@@ -60,60 +60,82 @@ def main() -> None:
     #     .rolling(window=WINDOW)
     #     .mean()
     # )
-    
+
     activity["nmotif_roll"] = (
         activity["n_motifs"]
         .rolling(window=WINDOW)
         .mean()
     )
-    
+
 
     # Find first row where CI width is less than 0.1
-    #last_index = activity[activity["ci_width_roll"] < THRESH].index[0] - WINDOW
-    last_index = activity[activity["nmotif_roll"] < THRESH].index[0] - WINDOW
+    # Try, exept index error means motif count is good across the board, so can skip the process
+    try:
+        last_index = activity[activity["nmotif_roll"] < THRESH].index[0] - WINDOW
+        # handle negatives
+        if last_index < 0:
+            last_index = 0
 
+        # Update to values at the cap index
+        columns_to_update = [
+            "n_unbound",
+            "n_bound",
+            "n_motifs",
+            "activity",
+            "ci95_lbound",
+            "ci95_rbound",
+            "ci_width_roll",
+        ]
 
-    # handle negatives
-    if last_index < 0:
-        last_index = 0
-    
-    # Update to values at the cap index
-    columns_to_update = [
-        "n_unbound",
-        "n_bound",
-        "n_motifs",
-        "activity",
-        "ci95_lbound",
-        "ci95_rbound",
-        "ci_width_roll",
-    ]
+        # Truncate
+        for column in columns_to_update:
+            activity.loc[last_index:, column] = activity.loc[last_index, column]
 
-    # Truncate
-    for column in columns_to_update:
-        activity.loc[last_index:, column] = activity.loc[last_index, column]
+        # Flat that you adjusted
+        activity["adjusted"] = [1 if x > last_index else 0 for x in activity.index]
 
-    # Flat that you adjusted
-    activity["adjusted"] = [1 if x > last_index else 0 for x in activity.index]
+        # Dict where score are keys and values are perc
+        score_perc = dict(zip(ix_sites["score"], ix_sites["perc"]))
 
-    # Dict where score are keys and values are perc
-    score_perc = dict(zip(ix_sites["score"], ix_sites["perc"]))
+        # Update with perc
+        activity['perc'] = activity['score'].map(score_perc)
 
-    # Update with perc
-    activity['perc'] = activity['score'].map(score_perc)
+        # Bound to 0 and 1
+        x = activity["perc"] / 100
+        y = activity["activity"]
 
-    # Bound to 0 and 1
-    x = activity["perc"] / 100
-    y = activity["activity"]
+        # Get AUC
+        auc = metrics.auc(x, y)
 
-    # Get AUC
-    auc = metrics.auc(x, y)
+        # Write to file
+        activity.to_csv(OUTPUT, sep="\t", index=False)
 
-    # Write to file
-    activity.to_csv(OUTPUT, sep="\t", index=False)
+        # Save auc
+        with open(OUTPUT.replace(".tsv", ".auc"), "w") as f:
+            f.write(str(auc))
+    except IndexError:
+        # Dict where score are keys and values are perc
+        score_perc = dict(zip(ix_sites["score"], ix_sites["perc"]))
 
-    # Save auc
-    with open(OUTPUT.replace(".tsv", ".auc"), "w") as f:
-        f.write(str(auc))
+        # Update with perc
+        activity['perc'] = activity['score'].map(score_perc)
+        
+        # Flag not adjusted
+        activity["adjusted"] = 0
+        
+        # Bound to 0 and 1
+        x = activity["perc"] / 100
+        y = activity["activity"]
+
+        # Get AUC
+        auc = metrics.auc(x, y)
+
+        # Write to file
+        activity.to_csv(OUTPUT, sep="\t", index=False)
+
+        # Save auc
+        with open(OUTPUT.replace(".tsv", ".auc"), "w") as f:
+            f.write(str(auc))
 
 
 # ------------- #
