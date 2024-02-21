@@ -364,7 +364,7 @@ rule plot_activity:
     params:
         profile=lambda wc: wc.profile,
     conda:
-        "../envs/report.yaml"
+        "../envs/plot.yaml"
     log:
         stdout="workflow/logs/plot_activity_{source}_{profile}.stdout",
         stderr="workflow/logs/plot_activity_{source}_{profile}.stderr",
