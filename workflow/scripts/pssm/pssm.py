@@ -1,28 +1,19 @@
-from pathlib import Path
+import logomaker
 from Bio import motifs
 from pandas import DataFrame
-from Bio.motifs.jaspar import calculate_pseudocounts
-from multiprocessing import Pool
-import logomaker
 from matplotlib import pyplot as plt
+from Bio.motifs.jaspar import calculate_pseudocounts
 
 # Snakemake parameters
-IP_DIR = snakemake.input[0]  # type: ignore
-OP_DIR = snakemake.output[0]  # type: ignore
+IP_PFM = snakemake.input[0]  # type: ignore
+OP_PSSM_LOGO = snakemake.output.logo  # type: ignore
+OP_PSSM_LOG2 = snakemake.output.pssm_log2  # type: ignore
+OP_PSSM_intLogOdds = snakemake.output.pssm_intLogOdds  # type: ignore
+OP_PSSM_STATS = snakemake.output.pssm_stats  # type: ignore
 
 # ------------- #
 # Functions     #
 # ------------- #
-
-
-def make_output_dir(op_dir: str) -> None:
-    """Make output directory if it doesn't exist."""
-    Path(op_dir).mkdir(parents=True, exist_ok=True)
-
-
-def get_pfms(ip_dir: str) -> list:
-    """Return list of fasta files from input directory."""
-    return [i for i in Path(ip_dir).glob("*.pfm")]
 
 
 def read_pfm(filepath: str):
@@ -60,7 +51,7 @@ def save_logo(pssm_data: DataFrame, outpath: str) -> None:
     plt.savefig(outpath, dpi=100)
 
 
-def save_pssm(pfm: str, outdir: str) -> None:
+def save_pssm(pfm: str) -> None:
     """Main program"""
     # Read input PFM
     pfm = read_pfm(pfm)
@@ -81,39 +72,19 @@ def save_pssm(pfm: str, outdir: str) -> None:
     # Format ic and gc as stats file
     stats_df = DataFrame.from_dict({"IC": [ic], "GC": [gc]})
 
-    # Make dir if doesn't exist
-    make_output_dir(outdir)
-
     # Write outputs
-    save_logo((DataFrame.from_dict(pssm)), f"{outdir}/logo.png")
+    save_logo((DataFrame.from_dict(pssm)), OP_PSSM_LOGO)
     (DataFrame.from_dict(pssm)).to_csv(
-        f"{outdir}/pssm", sep="\t", header=False, index=False
+        OP_PSSM_LOG2, sep="\t", header=False, index=False
     )
-    intlogodds.to_csv(f"{outdir}/pssm.intLogOdds", sep="\t", header=False, index=False)
-    stats_df.to_csv(f"{outdir}/pssm.stats", sep="\t", header=True, index=False)
-
-
-# Function to save PFM for each FASTA
-def save_pssm_for_pfm(pfm):
-    # Set output file, calculate and save
-    output_pssm_dir = f"{OP_DIR}/{'.'.join(Path(pfm).name.split('.')[:-1])}"
-    save_pssm(pfm, output_pssm_dir)
+    intlogodds.to_csv(OP_PSSM_intLogOdds, sep="\t", header=False, index=False)
+    stats_df.to_csv(OP_PSSM_STATS, sep="\t", header=True, index=False)
 
 
 def main() -> None:
     """Main program"""
-    # Make initial output directory
-    make_output_dir(OP_DIR)
-
-    # PFM files
-    pfm_files = get_pfms(IP_DIR)
-
-    # Number of processes
-    num_processes = snakemake.threads  # type: ignore
-
-    # Parallelize
-    with Pool(processes=num_processes) as p:
-        p.map(save_pssm_for_pfm, pfm_files)
+    # Call main function
+    save_pssm(IP_PFM)
 
 
 # ------------- #

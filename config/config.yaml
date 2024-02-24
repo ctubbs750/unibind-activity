@@ -1,13 +1,22 @@
-PSSM:
+UNIBIND-ACTIVITY:
   # Processing and install dirs
-  install_dir: resources/data/unibind
+  install_dir: resources/data
   process_dir: results/unibind
+  genome_dir: resources/data/genome
+  gencode_dir: results/gencode
+  masked_dir: results/unibind/mask
+  pwmscan_dir: resources/sofware/PWMScan
   # URLs for downloading the data
   urls:
     pwms: https://unibind.uio.no/static/data/20220914/bulk_Robust/Homo_sapiens/damo_hg38_PWMs.tar.gz
     tfbs: https://unibind.uio.no/static/data/20220914/bulk_Robust/Homo_sapiens/damo_hg38_TFBS_per_TF.tar.gz
     fasta: https://unibind.uio.no/static/data/20220914/bulk_Robust/Homo_sapiens/damo_hg38_all_TFBS_fasta.tar.gz
-    jaspar_pfms: https://jaspar.elixir.no/download/data/2024/CORE/JASPAR2024_CORE_redundant_pfms_jaspar.txt
+    jaspar_pfms: https://jaspar.elixir.no/download/data/2024/CORE/JASPAR2024_CORE_redundant_pfms_jaspar.zip
+    ambrosini: https://github.com/autosome-ru/motif_benchmarking_data/raw/master/analysis/best4exp_all_jaspar.txt
+  # PWMScan software
+  matrix_prob: workflow/scripts/scan/matrix_prob.c
+  matrix_scan: workflow/scripts/scan/matrix_scan.c
+
 
 ACTIVITY:
   # Target genome build to scan against

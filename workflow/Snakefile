@@ -24,35 +24,38 @@ module genome:
         config
 
 
-module pssm:
+module install:
     snakefile:
-        "rules/pssm.smk"
+        "rules/install.smk"
     config:
-        config["PSSM"]
+        config["UNIBIND-ACTIVITY"]
 
 
-module activity:
+module active:
     snakefile:
-        "rules/activity.smk"
+        "rules/active.smk"
     config:
-        config["ACTIVITY"]
+        config["UNIBIND-ACTIVITY"]
 
 
-module report:
-    snakefile:
-        "rules/report.smk"
-    config:
-        config["PSSM"]
+# module report:
+#     snakefile:
+#         "rules/report.smk"
+#     config:
+#         config["PSSM"]
 
 
 # Import modules
-use rule * from pssm as pssm_*
+#use rule * from gencode as gencode_*
 
 
-use rule * from activity as activity_*
+use rule * from install as install_*
 
 
-use rule * from report as report_*
+use rule * from active as active_*
+
+
+# use rule * from report as report_*
 
 
 ###
@@ -63,10 +66,10 @@ use rule * from report as report_*
 rule all:
     message:
         """
-        DEPLOYING UNIBIND-SCAN...
+        DEPLOYING UNIBIND-ACTIVITY...
         """
     input:
-        # rules.pssm_all.input,
-        rules.activity_all.input,
+        rules.install_all.input,
+        rules.active_all.input,
         # rules.report_all.input,
     default_target: True
