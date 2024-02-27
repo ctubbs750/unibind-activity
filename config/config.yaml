@@ -5,7 +5,7 @@ UNIBIND-ACTIVITY:
   genome_dir: resources/data/genome
   gencode_dir: results/gencode
   masked_dir: results/unibind/mask
-  pwmscan_dir: resources/sofware/PWMScan
+  pwmscan_dir: resources/software/PWMScan
   # URLs for downloading the data
   urls:
     pwms: https://unibind.uio.no/static/data/20220914/bulk_Robust/Homo_sapiens/damo_hg38_PWMs.tar.gz
