@@ -109,6 +109,11 @@ BIOSAMPLE_MAP = path.join(
 # Params        #
 # ------------- #
 
+# Thresholds
+WINDOW_SIZE = config["window_size"]
+PVAL_THRESH = config["pval_thresh"]
+RVAL_THRESH = config["rval_thresh"]
+
 # Types of data to download from UniBind
 DOWNLOAD_TYPES = ["PWMS", "TFBS", "FASTA"]
 
@@ -127,7 +132,7 @@ rule all:
     input:
         BIOSAMPLE_MAP,
         expand(ACTIVITY_PLT, source="unibind", profile=UNIBIND_PROFILES[:3]),
-    
+
 
 rule unibind_pfms:
     input:
@@ -211,8 +216,8 @@ rule calculate_cutoff:
     output:
         COEFF,
     params:
-        pthresh=0.05,
-        rthresh=90,
+        pthresh=PVAL_THRESH,
+        rthresh=RVAL_THRESH,
     log:
         stdout="workflow/logs/calculate_cutoff_{profile}_{source}.stdout",
         stderr="workflow/logs/calculate_cutoff_{profile}_{source}.stderr",
@@ -283,8 +288,7 @@ rule map_activity:
     output:
         ACTIVITY_MAP,
     params:
-        window=10,
-        threshold=10,
+        window=WINDOW_SIZE,
     conda:
         "../envs/scan.yaml"
     log:
@@ -342,9 +346,8 @@ rule summarize_jaspar_sites:
 
 rule final_report:
     input:
-        # Need the following on to run, turned off to test
-        # expand(ACTIVITY_PLT, source="unibind", profile=UNIBIND_PROFILES),
-        # expand(JASPAR_SITES, source="jaspar", profile=JASPAR_PROFILES),
+        expand(ACTIVITY_PLT, source="unibind", profile=UNIBIND_PROFILES),
+        expand(JASPAR_SITES, source="jaspar", profile=JASPAR_PROFILES),
     output:
         BIOSAMPLE_MAP,
     params:
