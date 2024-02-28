@@ -5,7 +5,7 @@ from sklearn.metrics import mean_squared_error
 from sklearn.linear_model import LinearRegression
 from pandas import DataFrame, read_csv, merge
 from statsmodels.stats.proportion import proportion_confint
-
+import statsmodels.api as sm
 
 # Snakemake parameters
 SITES = snakemake.input[0]  # type: ignore
@@ -34,6 +34,15 @@ def read_sites(filepath: str) -> DataFrame:
 def read_pvals(filepath: str) -> DataFrame:
     """Reads the pvals file"""
     return read_csv(filepath, sep="\s+", header=None, names=["score", "pval", "perc"])
+
+
+def get_lowess_coords(x, y):
+    # Perform LOWESS smoothing
+    lowess = sm.nonparametric.lowess(y, x)
+    # The returned variable 'lowess' is an array with two columns, the first column contains the sorted 'x' values and the second column the corresponding 'y' values
+    x_smooth = lowess[:, 0]
+    y_smooth = lowess[:, 1]
+    return DataFrame(list(zip(x_smooth, y_smooth)))
 
 
 def main() -> None:
@@ -73,14 +82,17 @@ def main() -> None:
         sites["n_bound"], sites["n_motifs"], method="wilson"
     )
 
+    # Add smoothed activity to score
+    sites["smoothed_activity"] = get_lowess_coords(sites["score"], sites["activity"])[1]
+
     # Width of CI
-    sites["ci_width"] = sites["ci95_rbound"] - sites["ci95_lbound"]
+    # sites["ci_width"] = sites["ci95_rbound"] - sites["ci95_lbound"]
 
-    # Rolling motif count
-    sites["ci_width_roll"] = sites["ci_width"].rolling(window=WINDOW).mean()
+    # # Rolling motif count
+    # sites["ci_width_roll"] = sites["ci_width"].rolling(window=WINDOW).mean()
 
-    # This may be driven by small proportions of 1 - weightign by CI width, Fill with min - these are missed in the rolling
-    weights = sites["ci_width_roll"].fillna(sites["ci_width_roll"].min())
+    # # This may be driven by small proportions of 1 - weightign by CI width, Fill with min - these are missed in the rolling
+    weights = sites["n_motifs"]
 
     # Train the linear regression model with weights
     X = np.array(sites["score"]).reshape(-1, 1)
