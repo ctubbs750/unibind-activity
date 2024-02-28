@@ -131,7 +131,7 @@ with open(UNIBIND_PROFILES_PATH, "r") as f:
 rule all:
     input:
         BIOSAMPLE_MAP,
-        expand(ACTIVITY_PLT, source="unibind", profile=UNIBIND_PROFILES),
+        expand(ACTIVITY_PLT, source="unibind", profile=UNIBIND_PROFILES[:10]),
 
 
 rule unibind_pfms:
@@ -346,8 +346,8 @@ rule summarize_jaspar_sites:
 
 rule final_report:
     input:
-        expand(ACTIVITY_PLT, source="unibind", profile=UNIBIND_PROFILES),
-        expand(JASPAR_SITES, source="jaspar", profile=JASPAR_PROFILES),
+        expand(ACTIVITY_PLT, source="unibind", profile=UNIBIND_PROFILES[:10]),
+        expand(JASPAR_SITES, source="jaspar", profile=JASPAR_PROFILES[:10]),
     output:
         BIOSAMPLE_MAP,
     params:
