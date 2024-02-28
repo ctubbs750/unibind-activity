@@ -131,7 +131,7 @@ with open(UNIBIND_PROFILES_PATH, "r") as f:
 rule all:
     input:
         BIOSAMPLE_MAP,
-        expand(ACTIVITY_PLT, source="unibind", profile=UNIBIND_PROFILES[:3]),
+        expand(ACTIVITY_PLT, source="unibind", profile=UNIBIND_PROFILES),
 
 
 rule unibind_pfms:

@@ -17,9 +17,9 @@ UNIBIND-ACTIVITY:
   matrix_prob: workflow/scripts/scan/matrix_prob.c
   matrix_scan: workflow/scripts/scan/matrix_scan.c
   # Thresholds
-  scan_thresh: 85
   window_size: 10
-  rval_thresh: 0.05
+  pval_thresh: 0.05
+  rval_thresh: 85
   
 
 ACTIVITY:
