@@ -11,7 +11,6 @@ import statsmodels.api as sm
 SITES = snakemake.input[0]  # type: ignore
 PVALS = snakemake.input[1]  # type: ignore
 WINDOW = snakemake.params.window  # type: ignore
-THRESH = snakemake.params.threshold  # type: ignore
 OUTPUT = snakemake.output[0]  # type: ignore
 
 
