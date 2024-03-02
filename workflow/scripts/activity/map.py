@@ -122,7 +122,7 @@ def main() -> None:
     mse = mean_squared_error(y, y_pred)
 
     # Write to file
-    sites.to_csv(OUTPUT, sep="\t", index=False)
+    score_map.to_csv(OUTPUT, sep="\t", index=False)
 
     # Save auc
     with open(OUTPUT.replace(".tsv", ".mse"), "w") as f:
