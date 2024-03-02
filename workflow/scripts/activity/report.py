@@ -284,12 +284,12 @@ def main() -> None:
 
         # Get activity auc
         activity_path = path.join(
-            ACTIVITY_DIR, "unibind", f"{profile}/activity-map.auc"
+            ACTIVITY_DIR, "unibind", f"{profile}/activity-map.mse"
         )
-        activity_auc = read_csv(activity_path, header=None, names=["auc"])["auc"].item()
+        activity_mse = read_csv(activity_path, header=None, names=["mse"])["mse"].item()
 
         # Update
-        data.update({"activity_auc": activity_auc})
+        data.update({"activity_mse": activity_mse})
 
         # Store results
         biosample_info.append(data)

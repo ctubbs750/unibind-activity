@@ -238,6 +238,8 @@ rule mask_unibind:
     input:
         unibind=UNIBIND_TFBS,
         exclude=MASKED_REGION,
+        # NOTE: this link not working...
+        tfbs_dir=path.join("resources", "data", "unibind", "damo_hg38_TFBS_FLAT"),
     output:
         temp(UNIBIND_TFBS_MASKED),
     conda:

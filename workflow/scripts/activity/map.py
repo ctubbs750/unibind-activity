@@ -11,7 +11,7 @@ import statsmodels.api as sm
 SITES = snakemake.input[0]  # type: ignore
 PVALS = snakemake.input[1]  # type: ignore
 WINDOW = snakemake.params.window  # type: ignore
-THRESH - snakemake.params.thresh  # type: ignore
+THRESH = snakemake.params.thresh  # type: ignore
 OUTPUT = snakemake.output[0]  # type: ignore
 
 
@@ -86,7 +86,7 @@ def main() -> None:
     # Binning on motif count
     ###
 
-    sum_threshold = 100
+    sum_threshold = THRESH
     cumsum = 0
     group = 0
     groups = []
