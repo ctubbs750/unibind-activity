@@ -20,6 +20,7 @@ UNIBIND-ACTIVITY:
   window_size: 10
   pval_thresh: 0.05
   rval_thresh: 85
+  motif_count_thresh: 100
   
 
 ACTIVITY:

@@ -113,6 +113,7 @@ BIOSAMPLE_MAP = path.join(
 WINDOW_SIZE = config["window_size"]
 PVAL_THRESH = config["pval_thresh"]
 RVAL_THRESH = config["rval_thresh"]
+MOTIF_COUNT_THRESH = config["motif_count_thresh"]
 
 # Types of data to download from UniBind
 DOWNLOAD_TYPES = ["PWMS", "TFBS", "FASTA"]
@@ -131,7 +132,7 @@ with open(UNIBIND_PROFILES_PATH, "r") as f:
 rule all:
     input:
         BIOSAMPLE_MAP,
-        expand(ACTIVITY_PLT, source="unibind", profile=UNIBIND_PROFILES[:10]),
+        expand(ACTIVITY_PLT, source="unibind", profile=UNIBIND_PROFILES),
 
 
 rule unibind_pfms:
@@ -289,6 +290,7 @@ rule map_activity:
         ACTIVITY_MAP,
     params:
         window=WINDOW_SIZE,
+        thresh=MOTIF_COUNT_THRESH,
     conda:
         "../envs/scan.yaml"
     log:
@@ -346,8 +348,8 @@ rule summarize_jaspar_sites:
 
 rule final_report:
     input:
-        expand(ACTIVITY_PLT, source="unibind", profile=UNIBIND_PROFILES[:10]),
-        expand(JASPAR_SITES, source="jaspar", profile=JASPAR_PROFILES[:10]),
+        expand(ACTIVITY_PLT, source="unibind", profile=UNIBIND_PROFILES),
+        expand(JASPAR_SITES, source="jaspar", profile=JASPAR_PROFILES),
     output:
         BIOSAMPLE_MAP,
     params:

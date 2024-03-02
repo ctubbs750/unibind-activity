@@ -11,6 +11,7 @@ import statsmodels.api as sm
 SITES = snakemake.input[0]  # type: ignore
 PVALS = snakemake.input[1]  # type: ignore
 WINDOW = snakemake.params.window  # type: ignore
+THRESH - snakemake.params.thresh  # type: ignore
 OUTPUT = snakemake.output[0]  # type: ignore
 
 
@@ -81,22 +82,38 @@ def main() -> None:
         sites["n_bound"], sites["n_motifs"], method="wilson"
     )
 
-    # Add smoothed activity to score
-    sites["smoothed_activity"] = get_lowess_coords(sites["score"], sites["activity"])[1]
+    ###
+    # Binning on motif count
+    ###
 
-    # Width of CI
-    # sites["ci_width"] = sites["ci95_rbound"] - sites["ci95_lbound"]
+    sum_threshold = 100
+    cumsum = 0
+    group = 0
+    groups = []
 
-    # # Rolling motif count
-    # sites["ci_width_roll"] = sites["ci_width"].rolling(window=WINDOW).mean()
+    for value in sites["n_motifs"]:
+        cumsum += value
+        if cumsum >= sum_threshold:
+            cumsum = 0
+            group += 1
+        groups.append(group)
+    # Add to sites
+    sites["bin"] = groups
 
-    # # This may be driven by small proportions of 1 - weightign by CI width, Fill with min - these are missed in the rolling
-    weights = sites["n_motifs"]
+    # Make mapping of raw score to mean activity in bin
+    score_map = (
+        sites.groupby("bin")
+        .agg(
+            {"score": "unique", "perc": "unique", "activity": "mean", "n_motifs": "sum"}
+        )
+        .explode(["score", "perc"])
+        .reset_index()
+    )
 
     # Train the linear regression model with weights
-    X = np.array(sites["score"]).reshape(-1, 1)
-    y = sites["activity"]
-    model = LinearRegression().fit(X, y, sample_weight=weights)
+    X = np.array(score_map["perc"]).reshape(-1, 1)
+    y = score_map["activity"]
+    model = LinearRegression().fit(X, y)
 
     # Get the predicted values
     y_pred = model.predict(X)
